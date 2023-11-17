@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Heaviness of shortRNA</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="01_heaviness_files/libs/clipboard/clipboard.min.js"></script>
+<script src="01_heaviness_files/libs/quarto-html/quarto.js"></script>
+<script src="01_heaviness_files/libs/quarto-html/popper.min.js"></script>
+<script src="01_heaviness_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="01_heaviness_files/libs/quarto-html/anchor.min.js"></script>
+<link href="01_heaviness_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="01_heaviness_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="01_heaviness_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="01_heaviness_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="01_heaviness_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Heaviness of <code>shortRNA</code></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="packages" class="level1">
+<h1>Packages</h1>
+<details>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(pkgndep)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>========================================
+pkgndep version 1.99.3
+CRAN page: https://CRAN.R-project.org/package=pkgndep
+Github page: https://github.com/jokergoo/pkgndep
+Documentation: https://jokergoo.github.io/pkgndep/
+
+If you use it in published research, please cite any of them:
+Gu, Z. Pkgndep: a tool for analyzing dependency heaviness 
+  of R packages. Bioinformatics 2022.
+Gu, Z. On the dependency heaviness of CRAN/Bioconductor 
+  ecosystem. Journal of Systems and Software 2023.
+
+This message can be suppressed by:
+  suppressPackageStartupMessages(library(pkgndep))
+========================================</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ComplexHeatmap)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: grid</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>========================================
+ComplexHeatmap version 2.18.0
+Bioconductor page: http://bioconductor.org/packages/ComplexHeatmap/
+Github page: https://github.com/jokergoo/ComplexHeatmap
+Documentation: http://jokergoo.github.io/ComplexHeatmap-reference
+
+If you use it in published research, please cite either one:
+- Gu, Z. Complex Heatmap Visualization. iMeta 2022.
+- Gu, Z. Complex heatmaps reveal patterns and correlations in multidimensional 
+    genomic data. Bioinformatics 2016.
+
+
+The new InteractiveComplexHeatmap package can directly export static 
+complex heatmaps into an interactive Shiny app with zero effort. Have a try!
+
+This message can be suppressed by:
+  suppressPackageStartupMessages(library(ComplexHeatmap))
+========================================</code></pre>
+</div>
+</div>
+</details>
+</section>
+<section id="description" class="level1">
+<h1>Description</h1>
+<section id="heaviness-of-shortrna" class="level2">
+<h2 class="anchored" data-anchor-id="heaviness-of-shortrna">Heaviness of <code>shortRNA</code></h2>
+<ol type="1">
+<li><strong>Moving <code>ggplot2</code> from Depends/Imports/LinkingTo to Suggests of <code>shortRNA</code>:</strong>
+<ul>
+<li>Absolute measure: <span class="math inline">\(v1 - v2\)</span> where <span class="math inline">\(v1\)</span> is the total number of packages required for <code>shortRNA</code> with <code>ggplot2</code> as a necessary dependency and <span class="math inline">\(v2\)</span> is the total number of required packages if <code>ggplot2</code> is suggested.</li>
+<li>Relative measure: <span class="math inline">\(\frac{{v1 + a}}{{v2 + a}}\)</span> where <span class="math inline">\(a\)</span> is a factor determining relative change in dependency counts.</li>
+</ul></li>
+<li><strong>Moving <code>Biostrings</code> from Depends/Imports/LinkingTo to Suggests of <code>shortRNA</code>:</strong>
+<ul>
+<li>Similar process as above but for <code>Biostrings</code> instead of <code>ggplot2</code>.</li>
+</ul></li>
+</ol>
+</section>
+<section id="co-heaviness-of-shortrna" class="level2">
+<h2 class="anchored" data-anchor-id="co-heaviness-of-shortrna">Co-heaviness of <code>shortRNA</code></h2>
+<ol type="1">
+<li><strong>Co-action of <code>ggplot2</code> and <code>Biostrings</code> moving from Depends/Imports/LinkingTo to Suggests of <code>shortRNA</code>:</strong>
+<ul>
+<li><span class="math inline">\(S_A\)</span>: Set of reduced dependency packages when only <code>ggplot2</code> is moved to Suggests.</li>
+<li><span class="math inline">\(S_B\)</span>: Set of reduced dependency packages when only <code>Biostrings</code> is moved to Suggests.</li>
+<li><span class="math inline">\(S_{{AB}}\)</span>: Set of reduced dependency packages when both <code>ggplot2</code> and <code>Biostrings</code> are moved together to Suggests.</li>
+<li>Co-heaviness: <span class="math inline">\(length(setdiff(S_{{AB}}, union(S_A, S_B)))\)</span> measures the unique reduction in dependencies caused by the joint action of <code>ggplot2</code> and <code>Biostrings</code> moving together to suggested status in <code>shortRNA</code>.</li>
+</ul></li>
+</ol>
+</section>
+<section id="calculation" class="level2">
+<h2 class="anchored" data-anchor-id="calculation">Calculation</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">pkgndep</span>(<span class="st">"shortRNA"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>retrieve package database from CRAN/Bioconductor (3.17)...
+  - 23187 remote packages on CRAN/Bioconductor.
+  - 386 packages installed locally.
+prepare dependency table...
+prepare reverse dependency table...</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fu">co_heaviness</span>(x)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>h <span class="ot">&lt;-</span> <span class="fu">heaviness</span>(x)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>h <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Package =</span> <span class="fu">names</span>(h), <span class="at">Heaviness =</span> h)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="barplot-of-heaviness" class="level2">
+<h2 class="anchored" data-anchor-id="barplot-of-heaviness">Barplot of heaviness</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> h, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(Package, Heaviness), <span class="at">y =</span> Heaviness)) <span class="sc">+</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>) <span class="sc">+</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Packages"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="01_heaviness_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="heatmap-of-co-heaviness" class="level2">
+<h2 class="anchored" data-anchor-id="heatmap-of-co-heaviness">Heatmap of co-heaviness</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">Heatmap</span>(m,</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">name =</span> <span class="st">"co-heaviness"</span>, <span class="at">col =</span> viridis<span class="sc">::</span><span class="fu">cividis</span>(<span class="at">n =</span> <span class="dv">100</span>),</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">row_names_gp =</span> <span class="fu">gpar</span>(<span class="at">fontsize =</span> <span class="dv">10</span>),</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">column_names_gp =</span> <span class="fu">gpar</span>(<span class="at">fontsize =</span> <span class="dv">10</span>)</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="01_heaviness_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="960"></p>
+</div>
+</div>
+</section>
+</section>
+<section id="package-optimization-suggestions" class="level1">
+<h1>Package optimization suggestions</h1>
+<p><a href="https://cran.r-project.org/web/packages/pkgndep/vignettes/suggestions.html">From <code>pkgndep</code></a></p>
+</section>
+<section id="references" class="level1">
+<h1>References</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="st">`</span><span class="at">%&gt;%</span><span class="st">`</span> <span class="ot">&lt;-</span> magrittr<span class="sc">::</span><span class="st">`</span><span class="at">%&gt;%</span><span class="st">`</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>report<span class="sc">::</span><span class="fu">cite_packages</span>(<span class="fu">sessionInfo</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  details<span class="sc">::</span><span class="fu">details</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<details closed="">
+<div class="sourceCode" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>Gu <span class="fu">Z</span> (<span class="dv">2023</span>). _pkgndep<span class="sc">:</span> Analyze Dependency Heaviness of R Packages_. R package version <span class="dv">1</span>.<span class="fl">99.3</span>, <span class="sc">&lt;</span>https<span class="sc">:</span><span class="er">//</span>CRAN.R<span class="sc">-</span>project.org<span class="sc">/</span>package<span class="ot">=</span>pkgndep<span class="sc">&gt;</span>. Gu Z, Huebschmann <span class="fu">D</span> (<span class="dv">2022</span>). <span class="st">"Pkgndep: a tool for analyzing dependency heaviness of R packages."</span> _Bioinformatics_. doi<span class="sc">:</span><span class="fl">10.1093</span><span class="sc">/</span>bioinformatics<span class="sc">/</span>btac449 <span class="sc">&lt;</span>https<span class="sc">:</span><span class="er">//</span>doi.org<span class="sc">/</span><span class="fl">10.1093</span><span class="sc">/</span>bioinformatics<span class="sc">/</span>btac449<span class="sc">&gt;</span>. Gu <span class="fu">Z</span> (<span class="dv">2023</span>). <span class="st">"On the dependency heaviness of CRAN/Bioconductor ecosystem."</span> _Journal of Systems and Software_. doi<span class="sc">:</span><span class="fl">10.1016</span><span class="sc">/</span>j.jss.<span class="fl">2023.111610</span> <span class="sc">&lt;</span>https<span class="sc">:</span><span class="er">//</span>doi.org<span class="sc">/</span><span class="fl">10.1016</span><span class="sc">/</span>j.jss.<span class="fl">2023.111610</span><span class="sc">&gt;</span>.</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>Gu Z, Eils R, Schlesner <span class="fu">M</span> (<span class="dv">2016</span>). <span class="st">"Complex heatmaps reveal patterns and correlations in multidimensional genomic data."</span> _Bioinformatics_. doi<span class="sc">:</span><span class="fl">10.1093</span><span class="sc">/</span>bioinformatics<span class="sc">/</span>btw313 <span class="sc">&lt;</span>https<span class="sc">:</span><span class="er">//</span>doi.org<span class="sc">/</span><span class="fl">10.1093</span><span class="sc">/</span>bioinformatics<span class="sc">/</span>btw313<span class="sc">&gt;</span>. Gu <span class="fu">Z</span> (<span class="dv">2022</span>). <span class="st">"Complex Heatmap Visualization."</span> _iMeta_. doi<span class="sc">:</span><span class="fl">10.1002</span><span class="sc">/</span>imt2<span class="fl">.43</span> <span class="sc">&lt;</span>https<span class="sc">:</span><span class="er">//</span>doi.org<span class="sc">/</span><span class="fl">10.1002</span><span class="sc">/</span>imt2<span class="fl">.43</span><span class="sc">&gt;</span>.</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>R Core <span class="fu">Team</span> (<span class="dv">2023</span>). _R<span class="sc">:</span> A Language and Environment <span class="cf">for</span> Statistical Computing_. R Foundation <span class="cf">for</span> Statistical Computing, Vienna, Austria. <span class="sc">&lt;</span>https<span class="sc">:</span><span class="er">//</span>www.R<span class="sc">-</span>project.org<span class="sc">/</span><span class="er">&gt;</span>.</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>Wickham <span class="fu">H</span> (<span class="dv">2016</span>). _ggplot2<span class="sc">:</span> Elegant Graphics <span class="cf">for</span> Data Analysis_. Springer<span class="sc">-</span>Verlag New York. ISBN <span class="dv">978-3-319-24277-4</span>, <span class="sc">&lt;</span>https<span class="sc">:</span><span class="er">//</span>ggplot2.tidyverse.org<span class="sc">&gt;</span>.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<p><br></p>
+</div>
+</div>
+</section>
+<section id="session-info" class="level1">
+<h1>Session info</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">session_info</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  details<span class="sc">::</span><span class="fu">details</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<details closed="">
+<div class="sourceCode" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>─ Session info ───────────────────────────────────────────────────────────────</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a> setting  value</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a> version  R version <span class="dv">4</span>.<span class="fl">3.1</span> (<span class="dv">2023-06-16</span>)</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a> os       macOS Sonoma <span class="dv">14</span>.<span class="fl">1.1</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a> system   aarch64, darwin20</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a> ui       X11</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a> <span class="fu">language</span> (EN)</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a> collate  en_US.UTF<span class="dv">-8</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a> ctype    en_US.UTF<span class="dv">-8</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a> tz       Europe<span class="sc">/</span>Zurich</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a> date     <span class="dv">2023-11-17</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a> pandoc   <span class="dv">3</span>.<span class="fl">1.2</span> <span class="sc">@</span> <span class="er">/</span>usr<span class="sc">/</span>local<span class="sc">/</span>bin<span class="sc">/</span> (via rmarkdown)</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>─ Packages ───────────────────────────────────────────────────────────────────</span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a> package        <span class="sc">*</span> version <span class="fu">date</span> (UTC) lib source</span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a> BiocGenerics     <span class="dv">0</span>.<span class="fl">48.1</span>  <span class="dv">2023-11-02</span> [<span class="dv">1</span>] Bioconductor</span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a> BiocVersion      <span class="dv">3</span>.<span class="fl">17.1</span>  <span class="dv">2022-12-20</span> [<span class="dv">1</span>] Bioconductor</span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a> cachem           <span class="dv">1</span>.<span class="fl">0.8</span>   <span class="dv">2023-05-01</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a> Cairo            <span class="fl">1.6</span><span class="dv">-1</span>   <span class="dv">2023-08-18</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a> callr            <span class="dv">3</span>.<span class="fl">7.3</span>   <span class="dv">2022-11-02</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a> circlize         <span class="dv">0</span>.<span class="fl">4.15</span>  <span class="dv">2022-05-10</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a> cli              <span class="dv">3</span>.<span class="fl">6.1</span>   <span class="dv">2023-03-23</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a> clipr            <span class="dv">0</span>.<span class="fl">8.0</span>   <span class="dv">2022-02-22</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a> clue             <span class="fl">0.3</span><span class="dv">-65</span>  <span class="dv">2023-09-23</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.1</span>)</span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a> cluster          <span class="dv">2</span>.<span class="fl">1.4</span>   <span class="dv">2022-08-22</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.1</span>)</span>
+<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a> codetools        <span class="fl">0.2</span><span class="dv">-19</span>  <span class="dv">2023-02-01</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.1</span>)</span>
+<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a> colorspace       <span class="fl">2.1</span><span class="dv">-0</span>   <span class="dv">2023-01-23</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a> ComplexHeatmap <span class="sc">*</span> <span class="dv">2</span>.<span class="fl">18.0</span>  <span class="dv">2023-10-26</span> [<span class="dv">1</span>] Bioconductor</span>
+<span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a> crayon           <span class="dv">1</span>.<span class="fl">5.2</span>   <span class="dv">2022-09-29</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-31"><a href="#cb14-31" aria-hidden="true" tabindex="-1"></a> desc             <span class="dv">1</span>.<span class="fl">4.2</span>   <span class="dv">2022-09-08</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a> details          <span class="dv">0</span>.<span class="fl">3.0</span>   <span class="dv">2022-03-27</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a> devtools         <span class="dv">2</span>.<span class="fl">4.5</span>   <span class="dv">2022-10-11</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-34"><a href="#cb14-34" aria-hidden="true" tabindex="-1"></a> digest           <span class="dv">0</span>.<span class="fl">6.33</span>  <span class="dv">2023-07-07</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-35"><a href="#cb14-35" aria-hidden="true" tabindex="-1"></a> doParallel       <span class="dv">1</span>.<span class="fl">0.17</span>  <span class="dv">2022-02-07</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-36"><a href="#cb14-36" aria-hidden="true" tabindex="-1"></a> dplyr            <span class="dv">1</span>.<span class="fl">1.3</span>   <span class="dv">2023-09-03</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-37"><a href="#cb14-37" aria-hidden="true" tabindex="-1"></a> ellipsis         <span class="dv">0</span>.<span class="fl">3.2</span>   <span class="dv">2021-04-29</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-38"><a href="#cb14-38" aria-hidden="true" tabindex="-1"></a> evaluate         <span class="fl">0.23</span>    <span class="dv">2023-11-01</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.1</span>)</span>
+<span id="cb14-39"><a href="#cb14-39" aria-hidden="true" tabindex="-1"></a> fansi            <span class="dv">1</span>.<span class="fl">0.5</span>   <span class="dv">2023-10-08</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.1</span>)</span>
+<span id="cb14-40"><a href="#cb14-40" aria-hidden="true" tabindex="-1"></a> farver           <span class="dv">2</span>.<span class="fl">1.1</span>   <span class="dv">2022-07-06</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-41"><a href="#cb14-41" aria-hidden="true" tabindex="-1"></a> fastmap          <span class="dv">1</span>.<span class="fl">1.1</span>   <span class="dv">2023-02-24</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-42"><a href="#cb14-42" aria-hidden="true" tabindex="-1"></a> foreach          <span class="dv">1</span>.<span class="fl">5.2</span>   <span class="dv">2022-02-02</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-43"><a href="#cb14-43" aria-hidden="true" tabindex="-1"></a> fs               <span class="dv">1</span>.<span class="fl">6.3</span>   <span class="dv">2023-07-20</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-44"><a href="#cb14-44" aria-hidden="true" tabindex="-1"></a> generics         <span class="dv">0</span>.<span class="fl">1.3</span>   <span class="dv">2022-07-05</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-45"><a href="#cb14-45" aria-hidden="true" tabindex="-1"></a> GetoptLong       <span class="dv">1</span>.<span class="fl">0.5</span>   <span class="dv">2020-12-15</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-46"><a href="#cb14-46" aria-hidden="true" tabindex="-1"></a> ggplot2        <span class="sc">*</span> <span class="dv">3</span>.<span class="fl">4.4</span>   <span class="dv">2023-10-12</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.1</span>)</span>
+<span id="cb14-47"><a href="#cb14-47" aria-hidden="true" tabindex="-1"></a> GlobalOptions    <span class="dv">0</span>.<span class="fl">1.2</span>   <span class="dv">2020-06-10</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-48"><a href="#cb14-48" aria-hidden="true" tabindex="-1"></a> glue             <span class="dv">1</span>.<span class="fl">6.2</span>   <span class="dv">2022-02-24</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-49"><a href="#cb14-49" aria-hidden="true" tabindex="-1"></a> gridExtra        <span class="fl">2.3</span>     <span class="dv">2017-09-09</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-50"><a href="#cb14-50" aria-hidden="true" tabindex="-1"></a> gtable           <span class="dv">0</span>.<span class="fl">3.4</span>   <span class="dv">2023-08-21</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-51"><a href="#cb14-51" aria-hidden="true" tabindex="-1"></a> hash             <span class="dv">2</span>.<span class="dv">2</span>.<span class="fl">6.3</span> <span class="dv">2023-08-19</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-52"><a href="#cb14-52" aria-hidden="true" tabindex="-1"></a> htmltools        <span class="dv">0</span>.<span class="fl">5.7</span>   <span class="dv">2023-11-03</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.1</span>)</span>
+<span id="cb14-53"><a href="#cb14-53" aria-hidden="true" tabindex="-1"></a> htmlwidgets      <span class="dv">1</span>.<span class="fl">6.2</span>   <span class="dv">2023-03-17</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-54"><a href="#cb14-54" aria-hidden="true" tabindex="-1"></a> httpuv           <span class="dv">1</span>.<span class="fl">6.12</span>  <span class="dv">2023-10-23</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.1</span>)</span>
+<span id="cb14-55"><a href="#cb14-55" aria-hidden="true" tabindex="-1"></a> httr             <span class="dv">1</span>.<span class="fl">4.7</span>   <span class="dv">2023-08-15</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-56"><a href="#cb14-56" aria-hidden="true" tabindex="-1"></a> insight          <span class="dv">0</span>.<span class="fl">19.6</span>  <span class="dv">2023-10-12</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.1</span>)</span>
+<span id="cb14-57"><a href="#cb14-57" aria-hidden="true" tabindex="-1"></a> IRanges          <span class="dv">2</span>.<span class="fl">36.0</span>  <span class="dv">2023-10-26</span> [<span class="dv">1</span>] Bioconductor</span>
+<span id="cb14-58"><a href="#cb14-58" aria-hidden="true" tabindex="-1"></a> iterators        <span class="dv">1</span>.<span class="fl">0.14</span>  <span class="dv">2022-02-05</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-59"><a href="#cb14-59" aria-hidden="true" tabindex="-1"></a> jsonlite         <span class="dv">1</span>.<span class="fl">8.7</span>   <span class="dv">2023-06-29</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-60"><a href="#cb14-60" aria-hidden="true" tabindex="-1"></a> knitr            <span class="fl">1.45</span>    <span class="dv">2023-10-30</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.1</span>)</span>
+<span id="cb14-61"><a href="#cb14-61" aria-hidden="true" tabindex="-1"></a> labeling         <span class="dv">0</span>.<span class="fl">4.3</span>   <span class="dv">2023-08-29</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-62"><a href="#cb14-62" aria-hidden="true" tabindex="-1"></a> later            <span class="dv">1</span>.<span class="fl">3.1</span>   <span class="dv">2023-05-02</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-63"><a href="#cb14-63" aria-hidden="true" tabindex="-1"></a> lifecycle        <span class="dv">1</span>.<span class="fl">0.4</span>   <span class="dv">2023-11-07</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.1</span>)</span>
+<span id="cb14-64"><a href="#cb14-64" aria-hidden="true" tabindex="-1"></a> magick           <span class="dv">2</span>.<span class="fl">8.1</span>   <span class="dv">2023-10-22</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.1</span>)</span>
+<span id="cb14-65"><a href="#cb14-65" aria-hidden="true" tabindex="-1"></a> magrittr         <span class="dv">2</span>.<span class="fl">0.3</span>   <span class="dv">2022-03-30</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-66"><a href="#cb14-66" aria-hidden="true" tabindex="-1"></a> matrixStats      <span class="dv">1</span>.<span class="fl">1.0</span>   <span class="dv">2023-11-07</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.1</span>)</span>
+<span id="cb14-67"><a href="#cb14-67" aria-hidden="true" tabindex="-1"></a> memoise          <span class="dv">2</span>.<span class="fl">0.1</span>   <span class="dv">2021-11-26</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-68"><a href="#cb14-68" aria-hidden="true" tabindex="-1"></a> mime             <span class="fl">0.12</span>    <span class="dv">2021-09-28</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-69"><a href="#cb14-69" aria-hidden="true" tabindex="-1"></a> miniUI           <span class="dv">0</span>.<span class="dv">1</span>.<span class="fl">1.1</span> <span class="dv">2018-05-18</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-70"><a href="#cb14-70" aria-hidden="true" tabindex="-1"></a> munsell          <span class="dv">0</span>.<span class="fl">5.0</span>   <span class="dv">2018-06-12</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-71"><a href="#cb14-71" aria-hidden="true" tabindex="-1"></a> pillar           <span class="dv">1</span>.<span class="fl">9.0</span>   <span class="dv">2023-03-22</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-72"><a href="#cb14-72" aria-hidden="true" tabindex="-1"></a> pkgbuild         <span class="dv">1</span>.<span class="fl">4.2</span>   <span class="dv">2023-06-26</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-73"><a href="#cb14-73" aria-hidden="true" tabindex="-1"></a> pkgconfig        <span class="dv">2</span>.<span class="fl">0.3</span>   <span class="dv">2019-09-22</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-74"><a href="#cb14-74" aria-hidden="true" tabindex="-1"></a> pkgload          <span class="dv">1</span>.<span class="fl">3.3</span>   <span class="dv">2023-09-22</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.1</span>)</span>
+<span id="cb14-75"><a href="#cb14-75" aria-hidden="true" tabindex="-1"></a> pkgndep        <span class="sc">*</span> <span class="dv">1</span>.<span class="fl">99.3</span>  <span class="dv">2023-10-13</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.1</span>)</span>
+<span id="cb14-76"><a href="#cb14-76" aria-hidden="true" tabindex="-1"></a> png              <span class="fl">0.1</span><span class="dv">-8</span>   <span class="dv">2022-11-29</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-77"><a href="#cb14-77" aria-hidden="true" tabindex="-1"></a> prettyunits      <span class="dv">1</span>.<span class="fl">2.0</span>   <span class="dv">2023-09-24</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.1</span>)</span>
+<span id="cb14-78"><a href="#cb14-78" aria-hidden="true" tabindex="-1"></a> processx         <span class="dv">3</span>.<span class="fl">8.2</span>   <span class="dv">2023-06-30</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-79"><a href="#cb14-79" aria-hidden="true" tabindex="-1"></a> profvis          <span class="dv">0</span>.<span class="fl">3.8</span>   <span class="dv">2023-05-02</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-80"><a href="#cb14-80" aria-hidden="true" tabindex="-1"></a> promises         <span class="dv">1</span>.<span class="fl">2.1</span>   <span class="dv">2023-08-10</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-81"><a href="#cb14-81" aria-hidden="true" tabindex="-1"></a> ps               <span class="dv">1</span>.<span class="fl">7.5</span>   <span class="dv">2023-04-18</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-82"><a href="#cb14-82" aria-hidden="true" tabindex="-1"></a> purrr            <span class="dv">1</span>.<span class="fl">0.2</span>   <span class="dv">2023-08-10</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-83"><a href="#cb14-83" aria-hidden="true" tabindex="-1"></a> R6               <span class="dv">2</span>.<span class="fl">5.1</span>   <span class="dv">2021-08-19</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-84"><a href="#cb14-84" aria-hidden="true" tabindex="-1"></a> RColorBrewer     <span class="fl">1.1</span><span class="dv">-3</span>   <span class="dv">2022-04-03</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-85"><a href="#cb14-85" aria-hidden="true" tabindex="-1"></a> Rcpp             <span class="dv">1</span>.<span class="fl">0.11</span>  <span class="dv">2023-07-06</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-86"><a href="#cb14-86" aria-hidden="true" tabindex="-1"></a> remotes          <span class="dv">2</span>.<span class="dv">4</span>.<span class="fl">2.1</span> <span class="dv">2023-07-18</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-87"><a href="#cb14-87" aria-hidden="true" tabindex="-1"></a> report           <span class="dv">0</span>.<span class="fl">5.7</span>   <span class="dv">2023-03-22</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-88"><a href="#cb14-88" aria-hidden="true" tabindex="-1"></a> rjson            <span class="dv">0</span>.<span class="fl">2.21</span>  <span class="dv">2022-01-09</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-89"><a href="#cb14-89" aria-hidden="true" tabindex="-1"></a> rlang            <span class="dv">1</span>.<span class="fl">1.2</span>   <span class="dv">2023-11-04</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.1</span>)</span>
+<span id="cb14-90"><a href="#cb14-90" aria-hidden="true" tabindex="-1"></a> rmarkdown        <span class="fl">2.25</span>    <span class="dv">2023-09-18</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.1</span>)</span>
+<span id="cb14-91"><a href="#cb14-91" aria-hidden="true" tabindex="-1"></a> rprojroot        <span class="dv">2</span>.<span class="fl">0.4</span>   <span class="dv">2023-11-05</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.1</span>)</span>
+<span id="cb14-92"><a href="#cb14-92" aria-hidden="true" tabindex="-1"></a> rstudioapi       <span class="dv">0</span>.<span class="fl">15.0</span>  <span class="dv">2023-07-07</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-93"><a href="#cb14-93" aria-hidden="true" tabindex="-1"></a> S4Vectors        <span class="dv">0</span>.<span class="fl">40.1</span>  <span class="dv">2023-10-26</span> [<span class="dv">1</span>] Bioconductor</span>
+<span id="cb14-94"><a href="#cb14-94" aria-hidden="true" tabindex="-1"></a> scales           <span class="dv">1</span>.<span class="fl">2.1</span>   <span class="dv">2022-08-20</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-95"><a href="#cb14-95" aria-hidden="true" tabindex="-1"></a> sessioninfo      <span class="dv">1</span>.<span class="fl">2.2</span>   <span class="dv">2021-12-06</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-96"><a href="#cb14-96" aria-hidden="true" tabindex="-1"></a> shape            <span class="dv">1</span>.<span class="fl">4.6</span>   <span class="dv">2021-05-19</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-97"><a href="#cb14-97" aria-hidden="true" tabindex="-1"></a> shiny            <span class="dv">1</span>.<span class="dv">7</span>.<span class="fl">5.1</span> <span class="dv">2023-10-14</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.1</span>)</span>
+<span id="cb14-98"><a href="#cb14-98" aria-hidden="true" tabindex="-1"></a> stringi          <span class="dv">1</span>.<span class="fl">8.1</span>   <span class="dv">2023-11-13</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.1</span>)</span>
+<span id="cb14-99"><a href="#cb14-99" aria-hidden="true" tabindex="-1"></a> stringr          <span class="dv">1</span>.<span class="fl">5.1</span>   <span class="dv">2023-11-14</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.1</span>)</span>
+<span id="cb14-100"><a href="#cb14-100" aria-hidden="true" tabindex="-1"></a> tibble           <span class="dv">3</span>.<span class="fl">2.1</span>   <span class="dv">2023-03-20</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-101"><a href="#cb14-101" aria-hidden="true" tabindex="-1"></a> tidyselect       <span class="dv">1</span>.<span class="fl">2.0</span>   <span class="dv">2022-10-10</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-102"><a href="#cb14-102" aria-hidden="true" tabindex="-1"></a> urlchecker       <span class="dv">1</span>.<span class="fl">0.1</span>   <span class="dv">2021-11-30</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-103"><a href="#cb14-103" aria-hidden="true" tabindex="-1"></a> usethis          <span class="dv">2</span>.<span class="fl">2.2</span>   <span class="dv">2023-07-06</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-104"><a href="#cb14-104" aria-hidden="true" tabindex="-1"></a> utf8             <span class="dv">1</span>.<span class="fl">2.4</span>   <span class="dv">2023-10-22</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.1</span>)</span>
+<span id="cb14-105"><a href="#cb14-105" aria-hidden="true" tabindex="-1"></a> vctrs            <span class="dv">0</span>.<span class="fl">6.4</span>   <span class="dv">2023-10-12</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.1</span>)</span>
+<span id="cb14-106"><a href="#cb14-106" aria-hidden="true" tabindex="-1"></a> viridis          <span class="dv">0</span>.<span class="fl">6.4</span>   <span class="dv">2023-07-22</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-107"><a href="#cb14-107" aria-hidden="true" tabindex="-1"></a> viridisLite      <span class="dv">0</span>.<span class="fl">4.2</span>   <span class="dv">2023-05-02</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-108"><a href="#cb14-108" aria-hidden="true" tabindex="-1"></a> withr            <span class="dv">2</span>.<span class="fl">5.2</span>   <span class="dv">2023-10-30</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.1</span>)</span>
+<span id="cb14-109"><a href="#cb14-109" aria-hidden="true" tabindex="-1"></a> xfun             <span class="fl">0.41</span>    <span class="dv">2023-11-01</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.1</span>)</span>
+<span id="cb14-110"><a href="#cb14-110" aria-hidden="true" tabindex="-1"></a> xml2             <span class="dv">1</span>.<span class="fl">3.5</span>   <span class="dv">2023-07-06</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-111"><a href="#cb14-111" aria-hidden="true" tabindex="-1"></a> xtable           <span class="fl">1.8</span><span class="dv">-4</span>   <span class="dv">2019-04-21</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-112"><a href="#cb14-112" aria-hidden="true" tabindex="-1"></a> yaml             <span class="dv">2</span>.<span class="fl">3.7</span>   <span class="dv">2023-01-23</span> [<span class="dv">1</span>] <span class="fu">CRAN</span> (R <span class="dv">4</span>.<span class="fl">3.0</span>)</span>
+<span id="cb14-113"><a href="#cb14-113" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-114"><a href="#cb14-114" aria-hidden="true" tabindex="-1"></a> [<span class="dv">1</span>] <span class="sc">/</span>Library<span class="sc">/</span>Frameworks<span class="sc">/</span>R.framework<span class="sc">/</span>Versions<span class="sc">/</span><span class="fl">4.3</span><span class="sc">-</span>arm64<span class="sc">/</span>Resources<span class="sc">/</span>library</span>
+<span id="cb14-115"><a href="#cb14-115" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-116"><a href="#cb14-116" aria-hidden="true" tabindex="-1"></a>──────────────────────────────────────────────────────────────────────────────</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<p><br></p>
+</div>
+</div>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

@@ -1,0 +1,120 @@
+---
+title: "`shortRNA` dependencies in graph format"
+format: html
+editor_options: 
+  chunk_output_type: console
+---
+
+# Libraries
+
+<detail>
+```{r}
+library(shortRNA)
+db <- pkgndep::reformat_db(installed.packages())
+```
+</detail>
+
+# Functions
+```{r}
+loaded_pkgs <- function(pkg) {
+  for (i in seq_along(pkg)) {
+    library(pkg[i], character.only = TRUE)
+  }
+  session_info <- sessionInfo()
+
+  base_pkgs <- session_info$basePkgs
+  other_pkgs <- sapply(session_info$otherPkgs, function(x) x$Package)
+  loaded_pkgs <- sapply(session_info$loadedOnly, function(x) x$Package)
+
+  lt <- list(
+    base_pkgs = base_pkgs,
+    other_pkgs = other_pkgs,
+    loaded_pkgs = loaded_pkgs
+  )
+
+  jsonlite::toJSON(lt)
+}
+
+dep_in_session <- function(pkg, db, dep_group = "strong", rankdir = "LR") {
+  session_info <- jsonlite::fromJSON(callr::r(loaded_pkgs, args = list(pkg = pkg)))
+
+  base_pkgs <- session_info$base_pkgs
+  other_pkgs <- session_info$other_pkgs
+  loaded_pkgs <- session_info$loaded_pkgs
+
+  mat <- matrix(nrow = 0, ncol = 3)
+
+  for (pkg in other_pkgs) {
+    mat <- rbind(mat, db$package_dependencies(pkg, recursive = TRUE, which = dep_group))
+  }
+
+  mat <- unique(mat)
+  mat <- mat[!mat[, 1] %in% pkgndep:::BASE_PKGS | mat[, 2] %in% pkgndep:::BASE_PKGS, , drop = FALSE]
+
+  all_pkgs <- c(other_pkgs, loaded_pkgs)
+  mat <- mat[mat[, 1] %in% all_pkgs & mat[, 2] %in% all_pkgs, , drop = FALSE]
+
+  all_nodes <- unique(c(mat[, 1], mat[, 2], other_pkgs, loaded_pkgs))
+  node_col <- rep("black", length(all_nodes))
+  node_col[all_nodes %in% other_pkgs] <- "red"
+  node_col[all_nodes %in% loaded_pkgs] <- "blue"
+
+  nodes <- glue::glue("  \"{all_nodes}\" [color=\"{node_col}\"];", collapse = FALSE)
+
+  dep_col <- c(2, 4, 3, 5, 6)
+  dep_col <- rgb(t(col2rgb(dep_col)), max = 255)
+  names(dep_col) <- c("Depends", "Imports", "LinkingTo", "Suggests", "Enhances")
+
+  edges <- glue::glue("  \"{mat[, 1]}\" -> \"{mat[, 2]}\" [color=\"{dep_col[mat[, 3]]}\"];", collapse = FALSE)
+
+  dot <- paste(
+    c(
+      "digraph {",
+      "  nodesep=0.05",
+      glue::glue("  rankdir={rankdir};"),
+      "  graph [overlap = true];",
+      "  node[shape = box];",
+      nodes,
+      edges,
+      "}"
+    ),
+    collapse = "\n"
+  )
+
+  DiagrammeR::grViz(dot)
+}
+```
+
+# Digraphs
+
+## All dependencies
+```{r}
+dep_in_session("shortRNA", db = db, dep_group = "all", rankdir = "TB")
+```
+
+## Strong dependencies
+```{r, fig.height=20, fig.width=15}
+dep_in_session("shortRNA", db = db, dep_group = "strong")
+```
+
+
+# Full report
+```{r}
+pkgndep::heaviness_report(pkgndep::pkgndep("shortRNA"),
+  file = "03_heatmap_report.html"
+)
+```
+
+
+# References
+```{r}
+`%>%` <- magrittr::`%>%`
+report::cite_packages(sessionInfo()) %>%
+  details::details()
+```
+
+# Session info
+```{r}
+devtools::session_info() %>%
+  details::details()
+```

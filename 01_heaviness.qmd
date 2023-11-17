@@ -1,0 +1,82 @@
+---
+title: "Heaviness of `shortRNA`"
+format: html
+editor_options: 
+  chunk_output_type: console
+---
+
+
+# Packages
+<details>
+```{r}
+library(pkgndep)
+library(ggplot2)
+library(ComplexHeatmap)
+```
+</details>
+
+# Description
+
+
+## Heaviness of `shortRNA`
+
+1. **Moving `ggplot2` from Depends/Imports/LinkingTo to Suggests of `shortRNA`:**
+    - Absolute measure: $v1 - v2$ where $v1$ is the total number of packages required for `shortRNA` with `ggplot2` as a necessary dependency and $v2$ is the total number of required packages if `ggplot2` is suggested.
+    - Relative measure: $\frac{{v1 + a}}{{v2 + a}}$ where $a$ is a factor determining relative change in dependency counts.
+
+2. **Moving `Biostrings` from Depends/Imports/LinkingTo to Suggests of `shortRNA`:**
+    - Similar process as above but for `Biostrings` instead of `ggplot2`.
+
+
+## Co-heaviness of `shortRNA`
+
+1. **Co-action of `ggplot2` and `Biostrings` moving from Depends/Imports/LinkingTo to Suggests of `shortRNA`:**
+    - $S_A$: Set of reduced dependency packages when only `ggplot2` is moved to Suggests.
+    - $S_B$: Set of reduced dependency packages when only `Biostrings` is moved to Suggests.
+    - $S_{{AB}}$: Set of reduced dependency packages when both `ggplot2` and `Biostrings` are moved together to Suggests.
+    - Co-heaviness: $length(setdiff(S_{{AB}}, union(S_A, S_B)))$ measures the unique reduction in dependencies caused by the joint action of `ggplot2` and `Biostrings` moving together to suggested status in `shortRNA`.
+
+
+## Calculation
+```{r}
+x <- pkgndep("shortRNA")
+m <- co_heaviness(x)
+h <- heaviness(x)
+h <- data.frame(Package = names(h), Heaviness = h)
+```
+
+## Barplot of heaviness
+```{r}
+ggplot(data = h, aes(x = reorder(Package, Heaviness), y = Heaviness)) +
+  geom_bar(stat = "identity") +
+  coord_flip() +
+  theme_bw() +
+  xlab("Packages")
+```
+
+
+## Heatmap of co-heaviness
+```{r, fig.height=8, fig.width=10}
+Heatmap(m,
+  name = "co-heaviness", col = viridis::cividis(n = 100),
+  row_names_gp = gpar(fontsize = 10),
+  column_names_gp = gpar(fontsize = 10)
+)
+```
+
+
+# Package optimization suggestions
+[From `pkgndep`](https://cran.r-project.org/web/packages/pkgndep/vignettes/suggestions.html)
+
+# References
+```{r}
+`%>%` <- magrittr::`%>%`
+report::cite_packages(sessionInfo()) %>%
+  details::details()
+```
+
+# Session info
+```{r}
+devtools::session_info() %>%
+  details::details()
+```
